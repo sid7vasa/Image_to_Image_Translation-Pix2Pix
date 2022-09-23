@@ -1,0 +1,4 @@
+dataset:
+    data_dir:
+        train: 'C:\Users\santo\workspace\str\data\maps\train'
+        val: 'C:\Users\santo\workspace\str\data\maps\val'
