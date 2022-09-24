@@ -74,23 +74,26 @@ class Generator():
 
 
 class Discriminator():
-    def __init__(self, input_shape):
+    def __init__(self, input_shape, gen_shape):
         self.input_shape = input_shape
+        self.gen_shape = gen_shape
         self.init = RandomNormal(stddev=0.2)
 
     def get_model(self):
         inputs = Input(shape=self.input_shape)
-        x = ConvBNRelu(filters=64, batch_norm=False)(inputs)
+        gen_ins = Input(shape=self.gen_shape)
+        x = Concatenate()([inputs, gen_ins])
+        x = ConvBNRelu(filters=64, batch_norm=False)(x)
         x = ConvBNRelu(filters=128)(x)
         x = ConvBNRelu(filters=256)(x)
         x = ConvBNRelu(filters=512)(x)
         x = ConvBNRelu(filters=512)(x)
         out = Conv2D(1, (4, 4), padding='same',
                      kernel_initializer=self.init)(x)
-        model = tf.keras.Model(inputs, out)
+        model = tf.keras.Model([inputs, gen_ins], out)
         return model
 
-class gan():
+class GAN():
     def __init__(self, generator, discriminator, input_shape):
         self.generator = generator
         self.discriminator = discriminator
@@ -99,7 +102,7 @@ class gan():
     def get_model(self):
         inputs = Input(shape = self.input_shape)
         gen_out = self.generator(inputs)
-        disc_out = self.discriminator(gen_out)
+        disc_out = self.discriminator([inputs,gen_out])
         model = tf.keras.Model(inputs, [gen_out, disc_out])
         return model
         
