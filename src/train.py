@@ -2,7 +2,7 @@
 """
 Created on Sun Sep 18 22:44:57 2022
 
-@author: santo
+@author: santosh
 """
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -30,3 +30,5 @@ if __name__ == "__main__":
     generator = Generator((256,256,3)).get_model()
     print(generator.summary())
     plot_model(generator, to_file="../generator.png")
+
+

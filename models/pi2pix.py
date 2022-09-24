@@ -89,3 +89,17 @@ class Discriminator():
                      kernel_initializer=self.init)(x)
         model = tf.keras.Model(inputs, out)
         return model
+
+class gan():
+    def __init__(self, generator, discriminator, input_shape):
+        self.generator = generator
+        self.discriminator = discriminator
+        self.input_shape = input_shape
+    
+    def get_model(self):
+        inputs = Input(shape = self.input_shape)
+        gen_out = self.generator(inputs)
+        disc_out = self.discriminator(gen_out)
+        model = tf.keras.Model(inputs, [gen_out, disc_out])
+        return model
+        
