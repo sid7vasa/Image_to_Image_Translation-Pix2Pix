@@ -11,7 +11,6 @@ from numpy import ones
 from numpy.random import randint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.initializers import RandomNormal
-from tensorflow.keras.models import Model
 from tensorflow.keras import Input
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import Conv2DTranspose
@@ -20,8 +19,6 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import BatchNormalization
-from matplotlib import pyplot as plt
-from tensorflow.keras.utils import plot_model
 
 
 def ConvBNRelu(filters=64, kernel_size=(4, 4), stride=(2, 2), padding="same", init=RandomNormal(stddev=0.2), batch_norm=True):

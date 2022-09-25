@@ -6,9 +6,7 @@ Created on Sun Sep 18 22:46:17 2022
 """
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from imutils import paths
-import yaml
 import os
 from PIL import Image
 
@@ -30,6 +28,12 @@ def _int64_feature(value):
 def serialize_array(array):
     array = tf.io.serialize_tensor(array)
     return array
+
+
+def preprocess_data(X1, X2):
+    X1 = (X1 - 127.5) / 127.5
+    X2 = (X2 - 127.5) / 127.5
+    return [X1, X2]
 
 
 def parse_single_image(image, label):
@@ -82,7 +86,7 @@ def parse_tfr_element(element):
 
 def split_image(image_path):
     image = Image.open(image_path)
-    image = image.resize((512,256))
+    image = image.resize((512, 256))
     image = np.asarray(image)
     image, label = image[:, :256], image[:, 256:]
     return image, label
@@ -121,9 +125,17 @@ def generate_tfrecords(parameters):
 
 
 def load_tfrecords(parameters):
-    train_dataset = tf.data.TFRecordDataset(os.path.join(parameters['dataset']['data_dir']['train'], 'train.tfrecords'))
-    val_dataset = tf.data.TFRecordDataset(os.path.join(parameters['dataset']['data_dir']['val'], 'val.tfrecords'))
+    train_dataset = tf.data.TFRecordDataset(os.path.join(
+        parameters['dataset']['data_dir']['train'], 'train.tfrecords'))
+    val_dataset = tf.data.TFRecordDataset(os.path.join(
+        parameters['dataset']['data_dir']['val'], 'val.tfrecords'))
+
     train_dataset = train_dataset.map(parse_tfr_element)
+    train_dataset = train_dataset.map(lambda x, y: (tf.cast(x, tf.float32), (tf.cast(y, tf.float32))))
+    train_dataset = train_dataset.map(preprocess_data)
+
     val_dataset = val_dataset.map(parse_tfr_element)
+    val_dataset = val_dataset.map(lambda x, y: (tf.cast(x, tf.float32), (tf.cast(y, tf.float32))))
+    val_dataset = val_dataset.map(preprocess_data)
+
     return (train_dataset, val_dataset)
-    
