@@ -32,13 +32,15 @@ def ConvBNRelu(filters=64, kernel_size=(4, 4), stride=(2, 2), padding="same", in
 
 
 def decoder_block(inputs, skip_inputs, filters, dropout=True):
-	init = RandomNormal(stddev=0.02)
-	g = Conv2DTranspose(filters, (4,4), strides=(2,2), padding='same', kernel_initializer=init)(inputs)
-	if dropout:
-		g = Dropout(0.5)(g, training=True)
-	g = Concatenate()([g, skip_inputs])
-	g = Activation('relu')(g)
-	return g
+    init = RandomNormal(stddev=0.02)
+    g = Conv2DTranspose(filters, (4, 4), strides=(
+        2, 2), padding='same', kernel_initializer=init)(inputs)
+    if dropout:
+        g = Dropout(0.5)(g, training=True)
+    g = Concatenate()([g, skip_inputs])
+    g = Activation('relu')(g)
+    return g
+
 
 class Generator():
     def __init__(self, input_shape):
@@ -64,7 +66,8 @@ class Generator():
         d5 = decoder_block(d4, e3, 256, dropout=False)
         d6 = decoder_block(d5, e2, 128, dropout=False)
         d7 = decoder_block(d6, e1, 64, dropout=False)
-        conv = Conv2DTranspose(self.input_shape[2], (4,4), strides=(2,2), padding='same', kernel_initializer=self.init)(d7)
+        conv = Conv2DTranspose(self.input_shape[2], (4, 4), strides=(
+            2, 2), padding='same', kernel_initializer=self.init)(d7)
         out = Activation('tanh')(conv)
         model = tf.keras.Model(inputs, out)
         return model
@@ -88,18 +91,27 @@ class Discriminator():
         out = Conv2D(1, (4, 4), padding='same',
                      kernel_initializer=self.init)(x)
         model = tf.keras.Model([inputs, gen_ins], out)
+        opt = Adam(lr=0.0002, beta_1=0.5)
+        model.compile(loss='binary_crossentropy',
+                      optimizer=opt, loss_weights=[0.5])
         return model
+
 
 class GAN():
     def __init__(self, generator, discriminator, input_shape):
         self.generator = generator
         self.discriminator = discriminator
         self.input_shape = input_shape
-    
+        for layer in discriminator.layers:
+            if not isinstance(layer, BatchNormalization):
+                layer.trainable = False
+
     def get_model(self):
-        inputs = Input(shape = self.input_shape)
+        inputs = Input(shape=self.input_shape)
         gen_out = self.generator(inputs)
-        disc_out = self.discriminator([inputs,gen_out])
+        disc_out = self.discriminator([inputs, gen_out])
         model = tf.keras.Model(inputs, [gen_out, disc_out])
+        opt = Adam(lr=0.0002, beta_1=0.5)
+        model.compile(loss=['mae', 'binary_crossentropy'],
+                      optimizer=opt, loss_weights=[100, 1])
         return model
-        

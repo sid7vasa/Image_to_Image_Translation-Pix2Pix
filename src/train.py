@@ -29,8 +29,8 @@ def get_dataset(parameters):
     else:
         print("Using existing TF Records")
     train_dataset, val_dataset = load_tfrecords(parameters)
-    train_dataset = train_dataset.batch(parameters['dataset']['batch_size'])
-    train_dataset = train_dataset.shuffle(buffer_size=100)
+    train_dataset = train_dataset.batch(
+        parameters['dataset']['batch_size']).shuffle(buffer_size=100)
     val_dataset = val_dataset.batch(parameters['dataset']['batch_size'])
     return train_dataset, val_dataset
 
@@ -39,21 +39,46 @@ def visualize_datasets(train_dataset, val_dataset):
     for data in train_dataset.take(1):
         print(data[0].shape)
         print(data[1].shape)
-        picture = (data[1]*127.5) + 127.5
+        picture = data[1].numpy()[0]
+        picture = (picture*127.5) + 127.5
         picture = np.array(picture, dtype=np.uint8)
         plt.imshow(picture)
         plt.show()
 
+def plot_sample_outputs():
+    for data in train_dataset.take(1):
+        x_fake = generator(data[0])
+        x_fake = (x_fake * 127.5) + 127.5
+        picture = np.array(x_fake, dtype=np.uint8)[0]
+        plt.imshow(picture)
+        plt.show()
 
-def train(parameters, generator, discriminator, gan, train_dataset, val_dataset, epochs=10, batch_size=1):
-    
 
-    pass
+def train(parameters, generator, discriminator, gan, train_dataset, val_dataset, epochs=10):
+    n_patch = discriminator.output_shape[1]
+    train_dataset = train_dataset.repeat(epochs)
+    batch_size = parameters['dataset']['batch_size']
+    for step, input_output_data in enumerate(train_dataset):
+
+        y_real = np.ones((batch_size, n_patch, n_patch, 1))
+        y_fake = np.zeros((batch_size, n_patch, n_patch, 1))
+
+        x_real_a = input_output_data[0]
+        x_real_b = input_output_data[1]
+
+        x_fake_b = generator(x_real_a)
+
+        d_loss1 = discriminator.train_on_batch([x_real_a, x_real_b], y_real)
+        d_loss2 = discriminator.train_on_batch([x_real_a, x_fake_b], y_fake)
+
+        g_loss = gan.train_on_batch(x_real_a, [x_real_b, y_real])
+
+        print((step+1, d_loss1, d_loss2, g_loss))
 
 
 if __name__ == "__main__":
     # Parameters for the training sesssion:
-    with open('parameters.yaml', 'r') as file:
+    with open('../parameters.yaml', 'r') as file:
         parameters = yaml.safe_load(file)
 
     # Creating/Loading TF Records data
@@ -75,4 +100,5 @@ if __name__ == "__main__":
         print(gan.summary())
         plot_model(gan, to_file="gan.png")
 
-    train(parameters, generator, discriminator, gan, train_dataset)
+    train(parameters, generator, discriminator,
+          gan, train_dataset, val_dataset)
