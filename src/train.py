@@ -71,9 +71,11 @@ def train(parameters, generator, discriminator, gan, train_dataset, val_dataset,
         d_loss1 = discriminator.train_on_batch([x_real_a, x_real_b], y_real)
         d_loss2 = discriminator.train_on_batch([x_real_a, x_fake_b], y_fake)
 
-        g_loss = gan.train_on_batch(x_real_a, [x_real_b, y_real])
-
-        print((step+1, d_loss1, d_loss2, g_loss))
+        g_loss, _, _ = gan.train_on_batch(x_real_a, [x_real_b, y_real])
+        
+        if step % 10 == 0:
+            print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (step+1, d_loss1, d_loss2, g_loss))
+            plot_sample_outputs()
 
 
 if __name__ == "__main__":
