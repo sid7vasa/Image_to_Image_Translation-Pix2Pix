@@ -12,6 +12,7 @@ import tensorflow as tf
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1 import ImageGrid
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 tf.get_logger().setLevel('WARNING')
 
@@ -45,12 +46,22 @@ def visualize_datasets(train_dataset, val_dataset):
         plt.imshow(picture)
         plt.show()
 
-def plot_sample_outputs():
-    for data in train_dataset.take(1):
-        x_fake = generator(data[0])
-        x_fake = (x_fake * 127.5) + 127.5
-        picture = np.array(x_fake, dtype=np.uint8)[0]
-        plt.imshow(picture)
+def plot_sample_outputs(val_dataset):
+    _, axs = plt.subplots(1, 3, figsize=(8, 24))
+    axs = axs.flatten()
+    def un_normalize(img):
+        img = (img * 127.5) + 127.5
+        img = np.array(img, dtype=np.uint8)[0]
+        return img
+    val_dataset = val_dataset.shuffle(buffer_size=100)
+
+    for data in val_dataset.take(1):
+        x_fake = un_normalize(generator(data[0]))
+        x_real_a = un_normalize(data[0])
+        x_real_b= un_normalize(data[1])
+        imgs = [x_real_a, x_real_b, x_fake]
+        for ax, img in zip(axs, imgs):
+            ax.imshow(img)
         plt.show()
 
 
@@ -75,7 +86,7 @@ def train(parameters, generator, discriminator, gan, train_dataset, val_dataset,
         
         if step % 10 == 0:
             print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (step+1, d_loss1, d_loss2, g_loss))
-            plot_sample_outputs()
+            plot_sample_outputs(val_dataset)
 
 
 if __name__ == "__main__":
