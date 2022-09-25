@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['src\\train.py', 'models\\pi2pix.py', 'data\\dataset.py', 'parameters.yaml']
+recent_files = ['src\\train.py', 'data\\dataset.py', 'models\\pi2pix.py', 'parameters.yaml']
 
 [main]
 version = 0.2.0
