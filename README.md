@@ -20,4 +20,4 @@ Class: Advanced Perception
 - Time travel days:
   - 3 days
 ## Results:
-![image info](result.png)
+![image info](Result.png)
