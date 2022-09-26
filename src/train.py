@@ -2,7 +2,10 @@
 """
 Created on Sun Sep 18 22:44:57 2022
 
-@author: santosh
+@author: Santosh Vasa
+Name: Santosh Vasa<br>
+Date: September 25, 2022<br>
+Class: Advanced Perception
 """
 from data.dataset import generate_tfrecords, load_tfrecords
 from tensorflow.keras.utils import plot_model

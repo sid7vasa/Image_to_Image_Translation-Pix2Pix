@@ -1,3 +1,8 @@
+# @author: Santoh Vasa
+# Name: Santosh Vasa<br>
+# Date: September 25, 2022<br>
+# Class: Advanced Perception
+
 dataset:
     data_dir:
         train: 'C:\Users\santo\workspace\str\data\maps\train'

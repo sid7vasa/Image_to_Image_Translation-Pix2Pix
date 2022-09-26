@@ -2,7 +2,10 @@
 """
 Created on Sun Sep 18 22:45:54 2022
 
-@author: santo
+@author: Santosh Vasa
+Name: Santosh Vasa<br>
+Date: September 25, 2022<br>
+Class: Advanced Perception
 """
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam

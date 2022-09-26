@@ -2,7 +2,10 @@
 """
 Created on Sun Sep 18 22:46:17 2022
 
-@author: santo
+@author: Santoh Vasa
+Name: Santosh Vasa<br>
+Date: September 25, 2022<br>
+Class: Advanced Perception
 """
 import tensorflow as tf
 import numpy as np
