@@ -15,6 +15,8 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import ImageGrid
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 tf.get_logger().setLevel('WARNING')
+import traceback
+from keras.utils.layer_utils import count_params  
 
 
 print(tf.test.is_gpu_available())
@@ -65,7 +67,7 @@ def plot_sample_outputs(val_dataset):
         plt.show()
 
 
-def train(parameters, generator, discriminator, gan, train_dataset, val_dataset, epochs=10):
+def train(parameters, generator, discriminator, gan, train_dataset, val_dataset, epochs=100):
     n_patch = discriminator.output_shape[1]
     train_dataset = train_dataset.repeat(epochs)
     batch_size = parameters['dataset']['batch_size']
@@ -74,19 +76,38 @@ def train(parameters, generator, discriminator, gan, train_dataset, val_dataset,
         y_real = np.ones((batch_size, n_patch, n_patch, 1))
         y_fake = np.zeros((batch_size, n_patch, n_patch, 1))
 
+        # y_real += 0.05 * tf.random.uniform(y_real.shape)
+        # y_fake += 0.05 * tf.random.uniform(y_fake.shape)
+
         x_real_a = input_output_data[0]
         x_real_b = input_output_data[1]
 
         x_fake_b = generator(x_real_a)
+        try:
+          for layer in discriminator.layers:
+            if not isinstance(layer, tf.keras.layers.BatchNormalization):
+              layer.trainable = True
+          # print(">0",count_params(discriminator.trainable_weights))
+          d_loss1 = discriminator.train_on_batch([x_real_a, x_real_b], y_real)
+          d_loss2 = discriminator.train_on_batch([x_real_a, x_fake_b], y_fake)
+          for layer in discriminator.layers:
+            if not isinstance(layer, tf.keras.layers.BatchNormalization):
+              layer.trainable = False
+          # print("=0",count_params(discriminator.trainable_weights))  
+          g_loss, _, _ = gan.train_on_batch(x_real_a, [x_real_b, y_real])
+        except:
+          traceback.print_exc()
 
-        d_loss1 = discriminator.train_on_batch([x_real_a, x_real_b], y_real)
-        d_loss2 = discriminator.train_on_batch([x_real_a, x_fake_b], y_fake)
-
-        g_loss, _, _ = gan.train_on_batch(x_real_a, [x_real_b, y_real])
         
-        if step % 10 == 0:
+        if step % 100 == 0:
             print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (step+1, d_loss1, d_loss2, g_loss))
-            plot_sample_outputs(val_dataset)
+            plot_sample_outputs(train_dataset)
+            plot_sample_outputs(val_dataset, val=True)
+        if step % 501 == 0:
+            print("Saving models:")
+            generator.save("generator.h5")
+            discriminator.save("discriminator.h5")
+            gan.save("gan.h5")
 
 
 if __name__ == "__main__":

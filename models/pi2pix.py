@@ -6,9 +6,6 @@ Created on Sun Sep 18 22:45:54 2022
 """
 import tensorflow as tf
 import numpy as np
-from numpy import zeros
-from numpy import ones
-from numpy.random import randint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.initializers import RandomNormal
 from tensorflow.keras import Input
@@ -88,8 +85,9 @@ class Discriminator():
         x = ConvBNRelu(filters=256)(x)
         x = ConvBNRelu(filters=512)(x)
         x = ConvBNRelu(filters=512)(x)
-        out = Conv2D(1, (4, 4), padding='same',
+        x = Conv2D(1, (4, 4), padding='same',
                      kernel_initializer=self.init)(x)
+        out = Activation('sigmoid')(x)
         model = tf.keras.Model([inputs, gen_ins], out)
         opt = Adam(lr=0.0002, beta_1=0.5)
         model.compile(loss='binary_crossentropy',
@@ -102,9 +100,6 @@ class GAN():
         self.generator = generator
         self.discriminator = discriminator
         self.input_shape = input_shape
-        for layer in discriminator.layers:
-            if not isinstance(layer, BatchNormalization):
-                layer.trainable = False
 
     def get_model(self):
         inputs = Input(shape=self.input_shape)
