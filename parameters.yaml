@@ -5,7 +5,7 @@
 
 dataset:
     data_dir:
-        train: 'C:\Users\santo\workspace\str\data\maps\train'
-        val: 'C:\Users\santo\workspace\str\data\maps\val'
+        train: '/home/sid/datasets/maps/train'
+        val: '/home/sid/datasets/maps/val'
     batch_size: 1
-visualize: true
+visualize: false

@@ -182,8 +182,9 @@ def train(parameters, generator, discriminator, gan, train_dataset, val_dataset,
         # Todo: Can be handled better.
         if step % 100 == 0:
             print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (step+1, d_loss1, d_loss2, g_loss))
-            plot_sample_outputs(train_dataset)
-            plot_sample_outputs(val_dataset, val=True)
+            # if parameters['visualize']:
+                # plot_sample_outputs(train_dataset)
+                # plot_sample_outputs(val_dataset, val=True)
         if step % 501 == 0:
             print("Saving models:")
             generator.save("generator.h5")
